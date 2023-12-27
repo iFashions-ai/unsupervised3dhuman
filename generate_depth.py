@@ -29,6 +29,7 @@ parser.add_argument('--gpu_ids', type=int, default=0,  help='choose gpu ids')
 parser.add_argument('--restore_path', type=str, default="./pretrained/model_best_depth.pth",  help='pretrained depth model path')
 parser.add_argument('--smplmodel_folder', type=str, default="./smpl_models/",  help='pretrained Depth model path')
 parser.add_argument('--SMPL_downsample', type=str, default="./smpl_models/SMPL_downsample_index.pkl",  help='downsamople ')
+parser.add_argument('--SMPL_meanparams', type=str, default="./smpl_models/neutral_smpl_mean_params.h5")
 parser.add_argument('--dirs_save', type=str, default="./demo/demo_depth_save/",  help='save directory')
 parser.add_argument('--filename', type=str, default="./demo/demo_depth/shortshort_flying_eagle.000075_depth.ply",  help='file for processing')
 opt = parser.parse_args()
@@ -41,7 +42,7 @@ else:
     raise ValueError('NO Cuda device detected!')
      
 # --------pytorch model and optimizer is the key
-model = point_net_ssg(device=device).to(device).eval()
+model = point_net_ssg(smpl_mean_file=opt.SMPL_meanparams, device=device).to(device).eval()
 model.load_state_dict(torch.load(opt.restore_path, map_location=device))
 
 optimizer = optim.Adam(model.parameters())
@@ -121,3 +122,6 @@ param['shape'] = new_opt_betas.detach().cpu().numpy()
 param['pose'] = new_opt_pose.detach().cpu().numpy()
 param['trans'] = new_opt_cam_t.detach().cpu().numpy()
 joblib.dump(param, opt.dirs_save + filename_pure + "_EM.pkl", compress=3)          
+
+# save output as a dict to pth
+torch.save({k: getattr(output, k) for k in output.keys()}, opt.dirs_save + filename_pure + "_EM.pth")

@@ -29,6 +29,7 @@ parser.add_argument('--gpu_ids', type=int, default=0,  help='choose gpu ids')
 parser.add_argument('--restore_path', type=str, default="./pretrained/model_best_pt.pth",  help='pretrained point cloud model path')
 parser.add_argument('--smplmodel_folder', type=str, default="./smpl_models/",  help='pretrained Depth model path')
 parser.add_argument('--SMPL_downsample', type=str, default="./smpl_models/SMPL_downsample_index.pkl",  help='downsampled SMPL')
+parser.add_argument('--SMPL_meanparams', type=str, default="./smpl_models/neutral_smpl_mean_params.h5")
 parser.add_argument('--dirs_save', type=str, default="./demo/demo_pt_save/",  help='ssave directory')
 parser.add_argument('--filename', type=str, default="./demo/demo_pt/poloshort_ATUsquat.000110.obj",  help='file for processing')
 opt = parser.parse_args()
@@ -43,7 +44,7 @@ else:
     raise ValueError('NO Cuda device detected!')
      
 # --------load pytorch model---
-model = point_net_ssg(device=device).to(device).eval()
+model = point_net_ssg(smpl_mean_file=opt.SMPL_meanparams, device=device).to(device).eval()
 model.load_state_dict(torch.load(opt.restore_path, map_location=device))
 
 optimizer = optim.Adam(model.parameters())
