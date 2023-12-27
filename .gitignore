@@ -2,6 +2,7 @@ pretrained/*.pth
 smpl_models/smpl/*.pkl
 smpl_models/smpl/SMPL_python*
 sam_models/*.pth
+sam_models/*.pt
 .vscode
 
 # Byte-compiled / optimized / DLL files
